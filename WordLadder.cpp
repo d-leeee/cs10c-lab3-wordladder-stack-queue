@@ -54,9 +54,11 @@ WordLadder::WordLadder(const string& filename) {
 // std::find is defined in <algorithm> (you can google more about how it works)
 //
 void WordLadder::outputLadder(const string &start, const string &end, const string &outputFile) {
-  stack<string> words;
+  stack<string> wordStack;
+  queue<stack<string>> wordQueue;
 
-  words.push(start);
+  wordStack.push(start);
+  wordQueue.push(wordStack);
   // This is how we traverse the std::list dict
   for(auto it = dict.begin(); it != dict.end(); ++it) {
     // This is how we erase an entry and move to the next item (if any)
