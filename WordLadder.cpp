@@ -14,7 +14,8 @@ WordLadder::WordLadder(const string& filename) {
   ifstream file(filename);
   //exception if file did not properly open
   if (!file.is_open()){
-    throw runtime_error("Error: Failed to open file.");
+    cout << "Error: Failed to open file." << endl;
+    return;
   }
 
   //insert each 5 character word in the dictionary
@@ -24,13 +25,15 @@ WordLadder::WordLadder(const string& filename) {
       dict.push_back(word);
     }
     else{
-      throw runtime_error("Error: " + word + " is not 5 characters.");
+      cout << "Error: " << word << " is not 5 characters." << endl;
+      return;
     }
   }
 
   //throw error if the dictionary is empty
   if (dict.empty()){
-    throw runtime_error("Error: dictionary is empty.");
+    cout <<"Error: dictionary is empty." << endl;
+    return;
   }
 
   //close file
@@ -54,14 +57,70 @@ WordLadder::WordLadder(const string& filename) {
 // std::find is defined in <algorithm> (you can google more about how it works)
 //
 void WordLadder::outputLadder(const string &start, const string &end, const string &outputFile) {
+  ofstream file(outputFile);
+  if (!file.is_open()){
+    cout << "Error: Failed to open file." << endl;
+    return;
+  }
+  
   stack<string> wordStack;
   queue<stack<string>> wordQueue;
+  string curr;
 
-  wordStack.push(start);
-  wordQueue.push(wordStack);
-  // This is how we traverse the std::list dict
-  for(auto it = dict.begin(); it != dict.end(); ++it) {
-    // This is how we erase an entry and move to the next item (if any)
-    it = dict.erase(it);
+  //push start word to stack if it exists in the dictionary
+  if (std::find(dict.begin(),dict.end(),start) != dict.end()) {
+    file << start << " is in the dictionary." << endl; 
+    wordStack.push(start);
+    wordQueue.push(wordStack);
   }
+  else{
+    file << "No Word Ladder Found." << endl;
+    return;
+  }
+
+  while (!wordQueue.empty()){
+    stack<string> currStack = wordQueue.front(); 
+    string currWord = currStack.top();
+    
+    // This is how we traverse the std::list dict
+    for(auto it = dict.begin(); it != dict.end(); ++it) {
+      const string& dictWord = *it;
+      int count = 0;
+      //count how many letters off
+      for (unsigned i=0;i<dictWord.size();i++){
+        if (dictWord[i] != currWord[i]){
+          count++;
+          //if word is off by more than one, exit loop
+          if (count > 1){
+            break;
+          }
+        }
+      }
+      //if word is off by one, push to new stack
+      if (count == 1){
+        stack<string> newStack = wordQueue.front();
+        newStack.push(dictWord);
+
+        //if word is not the end word, enqueue this stack and remove from dictionary
+        if (dictWord != end){
+          wordQueue.push(newStack); 
+          wordQueue.pop();
+          // This is how we erase an entry and move to the next item (if any)
+          it = dict.erase(it);  
+        }
+        //if word ladder is completed, output to file
+        else{
+          while (!newStack.empty()){
+            file << newStack.top() << endl;
+            newStack.pop();
+          }
+          file.close();
+          return;
+        }
+      }
+    }
+  }
+  //if queue is empty and no ladder was found
+  file << "No Word Ladder Found." << endl;
+  file.close();
 }
