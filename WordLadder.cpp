@@ -68,7 +68,7 @@ void WordLadder::outputLadder(const string &start, const string &end, const stri
   string curr;
 
   //push start word to stack if it exists in the dictionary
-  if (std::find(dict.begin(),dict.end(),start) != dict.end()) {
+  if (std::find(dict.begin(),dict.end(),start) != dict.end() && std::find(dict.begin(),dict.end(),end) != dict.end()) {
     //create a stack containing just the first word in the laader
     wordStack.push(start);
     //enqueue this stack on to a queue of stacks
@@ -76,6 +76,12 @@ void WordLadder::outputLadder(const string &start, const string &end, const stri
   }
   else{
     file << "No Word Ladder Found." << endl;
+    return;
+  }
+
+  if (start == end){
+    file << start << endl;
+    file.close();
     return;
   }
 
@@ -101,6 +107,7 @@ void WordLadder::outputLadder(const string &start, const string &end, const stri
       }
       //if word is off by just one letter from the top word
       if (count == 1){
+        //create a new stack that is a copy of the front stack and push on this off by one word found
         stack<string> newStack = wordQueue.front();
         newStack.push(dictWord);
 
@@ -118,7 +125,7 @@ void WordLadder::outputLadder(const string &start, const string &end, const stri
             newStack.pop();
           }
           for (auto it=output.begin();it!=output.end();++it){
-            cout << *it << " ";
+            file << *it << " ";
           }
           file.close();
           return;
