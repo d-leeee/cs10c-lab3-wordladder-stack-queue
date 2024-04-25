@@ -69,8 +69,9 @@ void WordLadder::outputLadder(const string &start, const string &end, const stri
 
   //push start word to stack if it exists in the dictionary
   if (std::find(dict.begin(),dict.end(),start) != dict.end()) {
-    file << start << " is in the dictionary." << endl; 
+    //create a stack containing just the first word in the laader
     wordStack.push(start);
+    //enqueue this stack on to a queue of stacks
     wordQueue.push(wordStack);
   }
   else{
@@ -78,11 +79,13 @@ void WordLadder::outputLadder(const string &start, const string &end, const stri
     return;
   }
 
+  //while this queue of stacks is not empty
   while (!wordQueue.empty()){
+    //get the word on top of the front stack of this queue
     stack<string> currStack = wordQueue.front(); 
     string currWord = currStack.top();
     
-    // This is how we traverse the std::list dict
+    //for each word in the dictionary
     for(auto it = dict.begin(); it != dict.end(); ++it) {
       const string& dictWord = *it;
       int count = 0;
@@ -96,7 +99,7 @@ void WordLadder::outputLadder(const string &start, const string &end, const stri
           }
         }
       }
-      //if word is off by one, push to new stack
+      //if word is off by just one letter from the top word
       if (count == 1){
         stack<string> newStack = wordQueue.front();
         newStack.push(dictWord);
@@ -104,21 +107,25 @@ void WordLadder::outputLadder(const string &start, const string &end, const stri
         //if word is not the end word, enqueue this stack and remove from dictionary
         if (dictWord != end){
           wordQueue.push(newStack); 
-          wordQueue.pop();
           // This is how we erase an entry and move to the next item (if any)
           it = dict.erase(it);  
         }
         //if word ladder is completed, output to file
         else{
+          list<string> output;
           while (!newStack.empty()){
-            file << newStack.top() << endl;
+            output.push_front(newStack.top());
             newStack.pop();
+          }
+          for (auto it=output.begin();it!=output.end();++it){
+            cout << *it << " ";
           }
           file.close();
           return;
         }
       }
     }
+    wordQueue.pop();
   }
   //if queue is empty and no ladder was found
   file << "No Word Ladder Found." << endl;
