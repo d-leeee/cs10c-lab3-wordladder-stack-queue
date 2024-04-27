@@ -5,9 +5,10 @@
 
 using namespace std;
 
+//open a dictionary and place the words into a list dict
 WordLadder::WordLadder(const string& filename) {
   ifstream file(filename);
-  //exception if file did not properly open
+
   if (!file.is_open()){
     cout << "Error: Failed to open file." << endl;
     return;
@@ -21,22 +22,24 @@ WordLadder::WordLadder(const string& filename) {
     }
     else{
       cout << "Error: " << word << " is not 5 characters." << endl;
+      file.close();
       return;
     }
   }
 
-  //throw error if the dictionary is empty
   if (dict.empty()){
     cout <<"Error: dictionary is empty." << endl;
+    file.close();
     return;
   }
 
-  //close file
   file.close();
 }
 
+//Create a word ladder (if any) and output to a file
 void WordLadder::outputLadder(const string &start, const string &end, const string &outputFile) {
   ofstream file(outputFile);
+
   if (!file.is_open()){
     cout << "Error: Failed to open file." << endl;
     return;
@@ -46,8 +49,8 @@ void WordLadder::outputLadder(const string &start, const string &end, const stri
   queue<stack<string>> wordQueue;
 
   //check if start and end word exists in dictionary
-  if (existsInDict(start,end)) {
-    wordStack.push(start); //create a stack containing just the first word in the laader
+  if (existsInDict(start, end)) {
+    wordStack.push(start); //push to stack containing the first word of the ladder (start)
     wordQueue.push(wordStack); //enqueue this stack on to a queue of stacks
   }
   else{
@@ -64,17 +67,16 @@ void WordLadder::outputLadder(const string &start, const string &end, const stri
   }
 
   //while this queue of stacks is not empty
+  //create a word ladder
   while (!wordQueue.empty()){
-    //get the word on top of the front stack of this queue
-    string currWord = wordQueue.front().top();
+    string currWord = wordQueue.front().top(); //word on top of stack in front of queue
 
-    //for each word in the dictionary
     for (auto it = dict.begin(); it != dict.end(); ++it) {
-      const string& dictWord = *it;
+      const string& dictWord = *it; //current word in the dictionary 
       
       //if word is off by just one letter from the top word
+      //create a new copy of the front stack and push the current word in dictionary into the stack
       if (offByOne(currWord, dictWord)){
-        //create a new stack that is a copy of the front stack and push on this off by one word found
         stack<string> newStack = wordQueue.front();
         newStack.push(dictWord);
 
@@ -88,6 +90,7 @@ void WordLadder::outputLadder(const string &start, const string &end, const stri
         //if word ladder is completed, output to file
         else{
           outputLadderToFile(file,newStack);
+          return;
         }
       }
     }
@@ -98,10 +101,12 @@ void WordLadder::outputLadder(const string &start, const string &end, const stri
   file.close();
 }
 
+//return true if start and end word is in dictionary
 bool WordLadder::existsInDict(const string& start, const string& end) const {
     return std::find(dict.begin(),dict.end(),start) != dict.end() && std::find(dict.begin(),dict.end(),end) != dict.end();
   }
 
+//return true if the dictionary word is off by one letter from the top word
 bool WordLadder::offByOne(const string& currWord, const string& dictWord) const {
     int count = 0;
 
@@ -119,6 +124,7 @@ bool WordLadder::offByOne(const string& currWord, const string& dictWord) const 
     return true;
   }
 
+//output the word ladder to file
 void WordLadder::outputLadderToFile(ofstream& file, stack<string>& newStack) const {
   list<string> outputBackwards; //creating a list so that we can output the ladder backwards (since zybooks is outputting it the opposite direction)
   while (!newStack.empty()){

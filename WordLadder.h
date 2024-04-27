@@ -24,6 +24,8 @@ class WordLadder {
   void outputLadderToFile(ofstream& file, stack<string>& newStack) const;
 
   public:
+    //open a dictionary and place the words into a list dict
     WordLadder(const string& filename);
+    //Create a word ladder (if any) and output to a file
     void outputLadder(const string &start, const string &end, const string &outputFile);
 };
